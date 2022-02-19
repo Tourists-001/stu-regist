@@ -1,23 +1,70 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Login from '@/views/login.vue';
+import Logon from '@/views/logon.vue';
+import Main from '@/views/main.vue';
+import StuList from '@/components/stulist.vue';
+import AddStu from '@/components/AddStu.vue';
+import SearchStu from '@/components/searchStu.vue';
+import notFound from '@/components/notFound.vue';
 
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }
+    {
+        path: '/',
+        beforeEnter(to, from, next) {
+            const value = localStorage.getItem('username');
+            if( value) {
+                next('/main')
+            } else {
+                next('/login')
+            }
+        }
+    },
+    {
+        path:'/login',
+        component: Login,
+    },
+    {
+        path: '/logon',
+        component: Logon,
+    },
+    {
+        path: '/main',
+        component: Main,
+        beforeEnter(to, from, next) {
+            const value = localStorage.getItem('username');
+            if( value) {
+                next()
+            } else {
+                next('/login')
+            }
+        },
+        redirect: '/main/stulist',
+        children:[
+            {
+                path: 'stulist',
+                component: StuList,
+            },
+            {
+                path: 'addStu',
+                component: AddStu,
+            },
+            {
+                path: 'searchStu',
+                component: SearchStu,
+            }
+        ]
+    },
+    {
+        path: '/notFound',
+        component: notFound,
+    },
+    {
+        path: '*',
+        redirect: '/notFound'
+    },
 ]
 
 const router = new VueRouter({
